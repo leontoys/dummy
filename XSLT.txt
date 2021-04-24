@@ -1,3 +1,13 @@
+    DATA:    lo_json      TYPE REF TO /ui5/cl_json_parser.
+    CREATE OBJECT lo_json.
+    lo_json->parse( json = input ).
+    LOOP AT lo_json->m_entries INTO DATA(lwa_entries).
+      IF lwa_entries-name = 'name'.
+        output = lwa_entries-value.
+      ENDIF.
+    ENDLOOP.
+
+
 https://stackoverflow.com/questions/48947872/xslt-3-0-json-to-xml-and-xml-to-json-conversion
 https://www.saxonica.com/papers/xmlprague-2016mhk.pdf
 <?xml version="1.0" encoding="UTF-8"?>
