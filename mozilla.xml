@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<root>
+    <data>{
+        "cars" : [
+        {"doors" : "4","price" : "6L"},
+        {"doors" : "5","price" : "13L"}
+        ]
+        }
+    </data>
+</root>

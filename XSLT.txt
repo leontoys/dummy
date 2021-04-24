@@ -1,0 +1,195 @@
+https://stackoverflow.com/questions/48947872/xslt-3-0-json-to-xml-and-xml-to-json-conversion
+https://www.saxonica.com/papers/xmlprague-2016mhk.pdf
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+ xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ version="3.0"
+ xmlns:fn="http://www.w3.org/2005/xpath-functions/">
+<xsl:output indent="yes"/>
+<xsl:template match="data">
+    <xsl:copy-of select="fn:json-to-xml(.)"/>
+</xsl:template>
+</xsl:stylesheet>
+https://stackoverflow.com/questions/47590058/convert-json-to-xml-using-xslt-3-0-functions - I am yet to try this
+https://blogs.sap.com/2018/09/10/xslt-transformations-xml-2-abap-a-working-example/ - input file abap.xml - this worked
+https://blogs.sap.com/2019/04/04/how-to-generate-xml-dynamically-from-xslt/ - yet to try
+https://answers.sap.com/questions/8475274/how-to-use-xpath-function-to-select-some-particula.html - in abap it may not be supported
+https://help.sap.com/doc/7ac57736728810148a4b1a83b0e91070/1511%20000/en-US/frameset.htm?92af463c36a30319e10000000a114084.html - some evidence
+https://help.sap.com/viewer/31bfc625c2674acdb9aa7547b62db9cc/7.51.3/en-US/83b6463c32a3fe13e10000000a114084.html - latest
+https://help.sap.com/doc/saphelp_nw70/7.0.12/ja-JP/7f/b7463c32a3fe13e10000000a114084/frameset.htm - calling external
+https://blogs.sap.com/2007/08/07/calling-instance-object-method-of-abap-class-into-xslt-mapping-by-using-sap-call-external/ - helper blog
+
+*xslt
+<!-- 2016 November 11 | FIEB_CAMT054_V2_TO_FEB_20161111 | see note 1729746 -->
+<xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="urn:iso:std:iso:20022:tech:xsd:camt.054.001.02" xmlns:sap="http://www.sap.com/sapxsl" version="1.0">
+  <xsl:template match="ns0:Document ">
+    <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+      <asx:values>
+        <FEB_NTIMES>
+          <xsl:for-each select="ns0:BkToCstmrDbtCdtNtfctn/ns0:Ntfctn">
+            <xsl:variable name="CreDtTm">
+              <xsl:value-of select="ns0:CreDtTm"/>
+            </xsl:variable>
+            <xsl:variable name="AccountCurrency">
+              <xsl:value-of select="ns0:Acct/ns0:Ccy"/>
+            </xsl:variable>
+            <xsl:variable name="TypeOfAccount">
+              <xsl:value-of select="ns0:Acct/ns0:Tp/ns0:Cd"/>
+            </xsl:variable>
+            <xsl:variable name="IBAN">
+              <xsl:value-of select="ns0:Acct/ns0:Id/ns0:IBAN"/>
+            </xsl:variable>
+            <xsl:variable name="AccountNumber">
+              <xsl:value-of select="ns0:Acct/ns0:Id/ns0:Othr/ns0:Id"/>
+            </xsl:variable>
+            <xsl:variable name="BIC">
+              <xsl:value-of select="ns0:Acct/ns0:Svcr/ns0:FinInstnId/ns0:BIC"/>
+            </xsl:variable>
+            <xsl:variable name="BLZ">
+              <xsl:value-of select="ns0:Acct/ns0:Svcr/ns0:FinInstnId/ns0:Othr/ns0:Id"/>
+            </xsl:variable>
+            <xsl:variable name="Name">
+              <xsl:value-of select="ns0:Acct/ns0:Ownr/ns0:Nm"/>
+            </xsl:variable>
+            <xsl:for-each select="ns0:Ntry">
+              <!--Begin: Global Transaction Code-->
+              <xsl:variable name="VGEXT">
+                <xsl:value-of select="ns0:BkTxCd/ns0:Prtry/ns0:Cd"/>
+              </xsl:variable>
+              <xsl:variable name="VGEXT_DOMN">
+                <xsl:value-of select="ns0:BkTxCd/ns0:Domn/ns0:Cd"/>
+              </xsl:variable>
+              <xsl:variable name="VGEXT_Fmly">
+                <xsl:value-of select="ns0:BkTxCd/ns0:Domn/ns0:Fmly/ns0:Cd"/>
+              </xsl:variable>
+              <xsl:variable name="VGEXT_SubFmly">
+                <xsl:value-of select="ns0:BkTxCd/ns0:Domn/ns0:Fmly/ns0:SubFmlyCd"/>
+              </xsl:variable>
+              <!--End: Global Transaction Code-->
+              <xsl:variable name="BookgDt">
+                <xsl:value-of select="ns0:BookgDt/ns0:Dt"/>
+              </xsl:variable>
+              <xsl:variable name="BookgDtTm">
+                <xsl:value-of select="ns0:BookgDt/ns0:DtTm"/>
+              </xsl:variable>
+              <xsl:variable name="ValDt">
+                <xsl:value-of select="ns0:ValDt/ns0:Dt"/>
+              </xsl:variable>
+              <xsl:variable name="ValDtTm">
+                <xsl:value-of select="ns0:ValDt/ns0:DtTm"/>
+              </xsl:variable>
+              <xsl:variable name="CdtDbtInd">
+                <xsl:value-of select="ns0:CdtDbtInd"/>
+              </xsl:variable>
+              <xsl:variable name="Sts">
+                <xsl:value-of select="ns0:Sts"/>
+              </xsl:variable>
+              <FEB>
+                <FEBKO>
+                  <TEXT>
+                      <xsl:value-of select="$VGEXT_DOMN"/>
+                  </TEXT>
+<sap:call-external class="YXSLT" method="TRANSFORM">
+  <sap:callvalue     param="INPUT"   select="string($VGEXT_DOMN)"/>
+  <sap:callvariable  param="OUTPUT"    name="output"/>
+</sap:call-external>
+                  <NEWTEXT>
+                      <xsl:value-of select="($output)"/>
+                  </NEWTEXT>
+                  <AZIDT/>
+                  <EMKEY/>
+                  <VFDAT/>
+                  <WVDAT/>
+                  <WVTIM/>
+                  <WVART/>
+                  <HKONT/>
+                  <KTONR/>
+                  <!--AccountHolder-->
+                  <KTOIH>
+                    <xsl:value-of select="$Name"/>
+                  </KTOIH>
+                  <KTOSB/>
+                  <AZNUM/>
+                  <AZSNR/>
+                  <AZDAT>
+                    <xsl:value-of select="substring($CreDtTm,1,10)"/>
+                  </AZDAT>
+                  <BUKRS/>
+                  <KTOPL/>
+                  <!--Currency-->
+                  <xsl:if test="$AccountCurrency">
+                    <WAERS>
+                      <xsl:value-of select="$AccountCurrency"/>
+                    </WAERS>
+                  </xsl:if>
+                  <!--Total Debit / Total Credit-->
+                  <xsl:choose>
+                    <xsl:when test="$CdtDbtInd='DBIT'">
+                      <SUMSO>
+                        <xsl:value-of select="ns0:Amt"/>
+                      </SUMSO>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <SUMHA>
+                        <xsl:value-of select="ns0:Amt"/>
+                      </SUMHA>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                  <ESTYP/>
+                  <ESDMB/>
+                  <BLAUF/>
+                  <ELAUF/>
+                  <HZINS/>
+                  <TEILN/>
+                  <!--Type of Bank Account-->
+                  <xsl:if test="$TypeOfAccount">
+                    <BKTOA>
+                      <xsl:value-of select="$TypeOfAccount"/>
+                    </BKTOA>
+                  </xsl:if>
+                  <!--Number of memo records from the bank statement-->
+                  <ANZES>
+                    <xsl:value-of select="ns0:NtryDtls/ns0:Btch/ns0:NbOfTxs"/>
+                  </ANZES>
+                  <HBKID/>
+                  <HKTID/>
+                  <BKREF/>
+                  <DSART/>
+                  <XVERD/>
+                  <XBENR/>
+                  <XBTYP/>
+                  <SEQ_NUMBER/>
+                  <SEQ_STATUS/>
+                  <!--Fill FEBKO-INPUT_FORMAT; used for assigning FEBKO-AZNUM (last statement number + 1)-->
+                  <INPUT_FORMAT>
+                    <xsl:value-of select="'54'"/>
+                  </INPUT_FORMAT>
+                  <!--IBAN-->
+                  <xsl:if test="$IBAN">
+                    <SIBAN>
+                      <xsl:value-of select="$IBAN"/>
+                    </SIBAN>
+                  </xsl:if>
+                  <BANKKEY>
+                    <xsl:choose>
+                      <xsl:when test="$BIC">
+                        <xsl:value-of select="$BIC"/>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:value-of select="$BLZ"/>
+                      </xsl:otherwise>
+                    </xsl:choose>
+                  </BANKKEY>
+                  <!--Account Number-->
+                  <BANKACC>
+                    <xsl:value-of select="$AccountNumber"/>
+                  </BANKACC>
+                </FEBKO>
+              </FEB>
+            </xsl:for-each>
+          </xsl:for-each>
+        </FEB_NTIMES>
+      </asx:values>
+    </asx:abap>
+  </xsl:template>
+</xsl:transform>
