@@ -1,3 +1,3 @@
-function addTwo(x,y){
-  return x+y;
+function CheckJS(){
+   alert("This is JavaScript");
 }
